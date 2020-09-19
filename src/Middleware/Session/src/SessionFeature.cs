@@ -8,6 +8,6 @@ namespace Microsoft.AspNetCore.Session
 {
     public class SessionFeature : ISessionFeature
     {
-        public ISession Session { get; set; }
+        public ISession Session { get; set; } = default!;
     }
 }

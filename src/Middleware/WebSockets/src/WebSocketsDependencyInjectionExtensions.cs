@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -11,6 +11,11 @@ namespace Microsoft.AspNetCore.WebSockets
     {
         public static IServiceCollection AddWebSockets(this IServiceCollection services, Action<WebSocketOptions> configure)
         {
+            if (configure is null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+
             return services.Configure(configure);
         }
     }

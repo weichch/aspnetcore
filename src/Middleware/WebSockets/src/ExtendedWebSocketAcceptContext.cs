@@ -8,7 +8,7 @@ namespace Microsoft.AspNetCore.WebSockets
 {
     public class ExtendedWebSocketAcceptContext : WebSocketAcceptContext
     {
-        public override string SubProtocol { get; set; }
+        public override string? SubProtocol { get; set; }
 
         [Obsolete("Setting this property has no effect. It will be removed in a future version.")]
         public int? ReceiveBufferSize { get; set; }

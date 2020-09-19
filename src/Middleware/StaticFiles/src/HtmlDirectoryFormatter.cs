@@ -68,7 +68,7 @@ namespace Microsoft.AspNetCore.StaticFiles
 
             builder.AppendFormat(@"
 <head>
-  <title>{0} {1}</title>", HtmlEncode(Resources.HtmlDir_IndexOf), HtmlEncode(requestPath.Value));
+  <title>{0} {1}</title>", HtmlEncode(Resources.HtmlDir_IndexOf), HtmlEncode(requestPath.Value!));
 
             builder.Append(@"
   <style>
@@ -111,7 +111,7 @@ namespace Microsoft.AspNetCore.StaticFiles
     <header><h1>{0} <a href=""/"">/</a>", HtmlEncode(Resources.HtmlDir_IndexOf));
 
             string cumulativePath = "/";
-            foreach (var segment in requestPath.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var segment in requestPath.Value!.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 cumulativePath = cumulativePath + segment + "/";
                 builder.AppendFormat(@"<a href=""{0}"">{1}/</a>",
