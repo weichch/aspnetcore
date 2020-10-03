@@ -23,7 +23,6 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
     public sealed class HealthCheckRegistration
     {
         private Func<IServiceProvider, IHealthCheck> _factory;
-        private string _name;
         private TimeSpan _timeout;
 
         /// <summary>
@@ -69,7 +68,7 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
                 throw new ArgumentOutOfRangeException(nameof(timeout));
             }
 
-            _name = name;
+            Name = name;
             FailureStatus = failureStatus ?? HealthStatus.Unhealthy;
             Tags = new HashSet<string>(tags ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             _factory = (_) => instance;
@@ -128,7 +127,7 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
                 throw new ArgumentOutOfRangeException(nameof(timeout));
             }
 
-            _name = name;
+            Name = name;
             FailureStatus = failureStatus ?? HealthStatus.Unhealthy;
             Tags = new HashSet<string>(tags ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             _factory = factory;
@@ -175,21 +174,9 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
         }
 
         /// <summary>
-        /// Gets or sets the health check name.
+        /// Gets the health check name.
         /// </summary>
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _name = value;
-            }
-        }
+        public string Name { get; }
 
         /// <summary>
         /// Gets a list of tags that can be used for filtering health checks.
