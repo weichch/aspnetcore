@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -218,6 +219,27 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Value.Registrations,
                 actual => Assert.Equal("Foo", actual.Name),
                 actual => Assert.Equal("Bar", actual.Name));
+        }
+
+        [Fact]
+        public void ConfigureCheck_Predicate()
+        {
+            var services = CreateServices();
+
+            var timeout = TimeSpan.FromSeconds(23);
+            services.AddHealthChecks()
+                .AddCheck<TestHealthCheck>("test", tags: new[] {"tag"})
+                .AddTypeActivatedCheck<TestHealthCheckWithArgs>("test-args", HealthStatus.Unhealthy, new[] {"tag"}, new object[] {5, "hi"})
+                .ConfigureCheck(
+                    registration => registration.Tags.Contains("tag"),
+                    registration => registration.Timeout = timeout);
+
+            var options = services.BuildServiceProvider().GetRequiredService<IOptions<HealthCheckServiceOptions>>();
+
+            Assert.Collection(
+                options.Value.Registrations,
+                actual => Assert.Equal(timeout, actual.Timeout),
+                actual => Assert.Equal(timeout, actual.Timeout));
         }
 
         private IServiceCollection CreateServices()
