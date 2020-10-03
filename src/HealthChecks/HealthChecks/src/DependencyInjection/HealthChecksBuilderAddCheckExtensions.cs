@@ -284,5 +284,57 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder.Add(new HealthCheckRegistration(name, s => ActivatorUtilities.CreateInstance<T>(s, args), failureStatus, tags, timeout));
         }
+
+        /// <summary>
+        /// Configures existing health check with the specified name.
+        /// </summary>
+        public static IHealthChecksBuilder ConfigureCheck(
+            this IHealthChecksBuilder builder,
+            string name,
+            Action<HealthCheckRegistration> configure)
+        {
+            return builder.ConfigureCheck(registration => string.Equals(registration.Name, name, StringComparison.OrdinalIgnoreCase), configure);
+        }
+
+        /// <summary>
+        /// Configures all existing health checks that match the the specified criteria.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="predicate"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        public static IHealthChecksBuilder ConfigureCheck(
+            this IHealthChecksBuilder builder,
+            Predicate<HealthCheckRegistration> predicate,
+            Action<HealthCheckRegistration> configure)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (predicate == null)
+            {
+                throw new ArgumentNullException(nameof(predicate));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+
+            builder.Services.Configure<HealthCheckServiceOptions>(options =>
+            {
+                foreach (var registration in options.Registrations)
+                {
+                    if (predicate(registration))
+                    {
+                        configure(registration);
+                    }
+                }
+            });
+
+            return builder;
+        }
     }
 }
