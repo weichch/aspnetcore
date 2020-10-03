@@ -39,12 +39,8 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
 
             var services = serviceCollection.BuildServiceProvider();
 
-            var scopeFactory = services.GetRequiredService<IServiceScopeFactory>();
-            var options = services.GetRequiredService<IOptions<HealthCheckServiceOptions>>();
-            var logger = services.GetRequiredService<ILogger<DefaultHealthCheckService>>();
-
             // Act
-            var exception = Assert.Throws<ArgumentException>(() => new DefaultHealthCheckService(scopeFactory, options, logger));
+            var exception = Assert.Throws<OptionsValidationException>(() => services.GetRequiredService<HealthCheckService>());
 
             // Assert
             Assert.StartsWith($"Duplicate health checks were registered with the name(s): Foo, Baz", exception.Message);
