@@ -3,7 +3,9 @@
 
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -25,6 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>An instance of <see cref="IHealthChecksBuilder"/> from which health checks can be registered.</returns>
         public static IHealthChecksBuilder AddHealthChecks(this IServiceCollection services)
         {
+            services.TryAddEnumerable(ServiceDescriptor.Transient<IValidateOptions<HealthCheckServiceOptions>, HealthCheckServiceOptionsValidation>());
             services.TryAddSingleton<HealthCheckService, DefaultHealthCheckService>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, HealthCheckPublisherHostedService>());
             return new HealthChecksBuilder(services);

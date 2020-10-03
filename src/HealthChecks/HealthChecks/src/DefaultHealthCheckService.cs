@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
     internal class DefaultHealthCheckService : HealthCheckService
     {
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IOptions<HealthCheckServiceOptions> _options;
+        private readonly HealthCheckServiceOptions _options;
         private readonly ILogger<DefaultHealthCheckService> _logger;
 
         public DefaultHealthCheckService(
@@ -27,19 +27,18 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
             ILogger<DefaultHealthCheckService> logger)
         {
             _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-            _options = options ?? throw new ArgumentNullException(nameof(options));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
             // We're specifically going out of our way to do this at startup time. We want to make sure you
             // get any kind of health-check related error as early as possible. Waiting until someone
             // actually tries to **run** health checks would be real baaaaad.
-            ValidateRegistrations(_options.Value.Registrations);
+            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         public override async Task<HealthReport> CheckHealthAsync(
             Func<HealthCheckRegistration, bool>? predicate,
             CancellationToken cancellationToken = default)
         {
-            var registrations = _options.Value.Registrations;
+            var registrations = _options.Registrations;
             if (predicate != null)
             {
                 registrations = registrations.Where(predicate).ToArray();
@@ -152,21 +151,6 @@ namespace Microsoft.Extensions.Diagnostics.HealthChecks
                 }
 
                 return entry;
-            }
-        }
-
-        private static void ValidateRegistrations(IEnumerable<HealthCheckRegistration> registrations)
-        {
-            // Scan the list for duplicate names to provide a better error if there are duplicates.
-            var duplicateNames = registrations
-                .GroupBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
-                .Where(g => g.Count() > 1)
-                .Select(g => g.Key)
-                .ToList();
-
-            if (duplicateNames.Count > 0)
-            {
-                throw new ArgumentException($"Duplicate health checks were registered with the name(s): {string.Join(", ", duplicateNames)}", nameof(registrations));
             }
         }
 
